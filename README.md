@@ -1,39 +1,41 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Siren
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+An easy way to listen for and react to Version updates for your Flutter Android and iOS apps.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+A Version number typically has the format `x.y.z+b` where b is short for small bugfix updates. This version number as a String is handled by the Version class. It also overrides equality (by simply comparing the version String values) as well as methods like `isHigherThan` and `isLowerThan` to compare version instances.
 
 ```dart
-const like = 'sample';
+Version {
+  final String version;
+  late final int x;
+  late final int y;
+  late final int z;
+  late final int bugfix;
+
+  ...
+}
+```
+
+
+The real magic happens in the Siren class. Wherever you want to use it, simply create an instance (you should not do this in your build method - DUH!) right then and there. You can then access the fields `getCurrentVersion(...)` and `getNewVersion(...)` or by calling the `mapPolicy` function and handling every update case there. In case there is no update `mapPolicy` simply returns null.
+
+```dart
+const siren = Siren();
+
+siren.mapPolicy(
+  onXUpdate: (_, _) => showAlertDialog(...),
+  onYUpdate: (_, _) => showAlertDialog(...),
+  onZUpdate: (_, _) => showAlertDialog(...),
+  onBugfixUpdate: (_, _) {},
+);
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+The issue I had with similar plugins is, that I wanted to display my custom Widgets for each individual case with different functionality. The policy I was looking to implement was the following:
+- `x` part changes -> depricate older version and force user to update!
+- `y` part changes -> notify user of update but give them the option to update at a later point in time.
+- `z` part changes -> don't even tell the user about it. If they update (or have autoupdate active) nice otherwise we just wait for a bigger update.
+- `bugfix` part changes -> same as `z`.
