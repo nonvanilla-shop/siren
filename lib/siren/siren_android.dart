@@ -4,12 +4,14 @@ import 'package:siren/siren/version.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 
+/// This class handles getting the newest android version!
 class SirenAndroid {
   static Client client = Client();
 
+  /// Returns the new version.
   static Future<Version?> getVersion({
     required String from,
-    bool throwExceptions = false,
+    required bool throwExceptions,
   }) async {
     try {
       final url = Uri.parse(
@@ -23,6 +25,7 @@ class SirenAndroid {
 }
 
 extension on Document {
+  /// Parser extension to convert version number
   Version getVersion() {
     final additionalInfoElements = getElementsByClassName('hAyfc');
     final versionElement = additionalInfoElements.firstWhere(

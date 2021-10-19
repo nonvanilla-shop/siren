@@ -9,40 +9,53 @@ import 'package:siren/siren/version.dart';
 
 typedef VersionCallback<T> = T Function(Version oldV, Version newV);
 
+/// This class provides access to the current and optionally the new version of
+/// your app on both Android and iOS.
 class Siren {
-  String? _package;
-  Version? _currentVersion;
-  Version? _newVersion;
+  /// Returns current app version.
+  Future<Version> getCurrentVersion() async =>
+      Version.from((await PackageInfo.fromPlatform()).version);
 
-  Future<Version> get currentVersion async =>
-      _currentVersion ??
-      (_currentVersion =
-          Version.from((await PackageInfo.fromPlatform()).version));
+  /// Returns current package name.
+  Future<String> getPackage() async =>
+      (await PackageInfo.fromPlatform()).packageName;
 
-  Future<String> get package async =>
-      _package ?? (_package = (await PackageInfo.fromPlatform()).packageName);
+  /// Returns the new version if it is able to get one
+  Future<Version?>? getNewVersion({
+    bool throwExceptions = false,
+    String country = 'US',
+  }) async {
+    final package = await getPackage();
+    return Platform.isIOS
+        ? await SirenIOS.getVersion(
+            bundleId: package,
+            throwExceptions: throwExceptions,
+            country: country,
+          )
+        : Platform.isAndroid
+            ? await SirenAndroid.getVersion(
+                from: package,
+                throwExceptions: throwExceptions,
+              )
+            : throw PlatformException(
+                code: 'Platform is neither iOS nor Android!',
+              );
+  }
 
-  Future<Version?>? get newVersion async =>
-      _newVersion ??
-      (Platform.isIOS
-          ? _newVersion = await SirenIOS.getVersion(bundleId: await package)
-          : Platform.isAndroid
-              ? _newVersion = await SirenAndroid.getVersion(from: await package)
-              : throw PlatformException(
-                  code: 'Platform is neither iOS nor Android!',
-                ));
-
+  /// Returns true if a newer version is available.
   Future<bool> hasNewVersion() async =>
-      (await newVersion)?.isHigherThan(await currentVersion) ?? false;
+      (await getNewVersion())?.isHigherThan(await getCurrentVersion()) ?? false;
 
-  Future<T?> map<T>({
+  /// Maps each individual update case. This allows for very fine grained control
+  /// over what should happen depending on what kind of update happens.
+  Future<T?> mapPolicy<T>({
     required VersionCallback<T> onXChanged,
     required VersionCallback<T> onYChanged,
     required VersionCallback<T> onZChanged,
     required VersionCallback<T> onBugfixChanged,
   }) async {
-    final oldV = await currentVersion;
-    final newV = await newVersion;
+    final oldV = await getCurrentVersion();
+    final newV = await getNewVersion();
 
     if (newV == null) return Future.value(null);
 

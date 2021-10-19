@@ -4,14 +4,16 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:siren/siren/version.dart';
 
+/// This class handles getting the newest ios version!
 class SirenIOS {
   static Client client = Client();
   static const String baseUrl = 'https://itunes.apple.com/lookup';
 
+  /// Returns the new version.
   static Future<Version?> getVersion({
     required String bundleId,
-    String country = 'US',
-    bool throwExceptions = false,
+    required String country,
+    required bool throwExceptions,
   }) async {
     try {
       final params = {'bundleId': bundleId, 'country': country.toUpperCase()}
@@ -31,6 +33,7 @@ class SirenIOS {
 }
 
 extension on Response {
+  /// Parser extension to convert version number
   Version getVersion() {
     final json = jsonDecode(body);
     final version = json['results'][0]['version'];
