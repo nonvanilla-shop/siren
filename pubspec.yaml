@@ -1,7 +1,7 @@
 name: siren
 description: An easy way to notify your user of version updates.
 version: 0.0.1
-homepage:
+homepage: https://github.com/nonvanilla-shop/siren.git
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
