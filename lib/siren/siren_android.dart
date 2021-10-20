@@ -11,16 +11,20 @@ class SirenAndroid {
   /// Returns the new version.
   static Future<Version?> getVersion({
     required String from,
-    required bool throwExceptions,
   }) async {
-    try {
-      final url = Uri.parse(
-          'https://play.google.com/store/apps/details?id=$from&hl=en');
-      final response = await client.get(url);
-      return parse(response.body).getVersion();
-    } catch (e) {
-      if (throwExceptions) rethrow;
-    }
+    final url =
+        Uri.parse('https://play.google.com/store/apps/details?id=$from&hl=en');
+    final response = await client.get(url);
+    return parse(response.body).getVersion();
+  }
+
+  /// Returns the store link for the Play Store.
+  static Uri getStoreLink({
+    required String bundleId,
+    required String country,
+  }) {
+    final storeUrl = 'https://play.google.com/store/apps/details?id=$bundleId';
+    return Uri.parse(storeUrl);
   }
 }
 
