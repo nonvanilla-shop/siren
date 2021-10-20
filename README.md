@@ -19,16 +19,16 @@ Version {
 ```
 
 
-The real magic happens in the Siren class. Wherever you want to use it, simply create an instance (you should not do this in your build method - DUH!) right then and there. You can then access the fields `getCurrentVersion(...)` and `getNewVersion(...)` or by calling the `mapPolicy` function and handling every update case there. In case there is no update `mapPolicy` simply returns null.
+The real magic happens in the Siren class. Wherever you want to use it, simply create an instance (you should not do this in your build method - DUH!) right then and there. You can then access the fields `getCurrentVersion(...)` and `getNewVersion(...)` or by calling the `mapPolicy` function and handling every update case there. In case there is no update `mapPolicy` simply returns null. Each callback provides a Future<void> that opens the respective store if needed.
 
 ```dart
 const siren = Siren();
 
 siren.mapPolicy(
-  onXUpdate: (_, _) => showAlertDialog(...),
-  onYUpdate: (_, _) => showAlertDialog(...),
-  onZUpdate: (_, _) => showAlertDialog(...),
-  onBugfixUpdate: (_, _) {},
+  onXUpdate: (openStore) => showAlertDialog(...),
+  onYUpdate: (openStore) => showAlertDialog(...),
+  onZUpdate: (openStore) => showAlertDialog(...),
+  onBugfixUpdate: (_) {},
 );
 ```
 
