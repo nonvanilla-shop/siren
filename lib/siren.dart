@@ -8,7 +8,11 @@ import 'package:siren/siren/siren_ios.dart';
 import 'package:siren/siren/version.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-typedef VersionCallback<T> = T Function(Future<void> Function() openStore);
+typedef VersionCallback<T> = T Function(
+  Future<void> Function() openStore,
+  Version currentV,
+  Version newV,
+);
 
 /// This class provides access to the current and optionally the new version of
 /// your app on both Android and iOS.
@@ -22,7 +26,7 @@ class Siren {
       (await PackageInfo.fromPlatform()).packageName;
 
   /// Returns the new version if it is able to get one
-  Future<Version?>? getNewVersion({
+  Future<Version?> getNewVersion({
     bool throwExceptions = false,
     String country = 'US',
   }) async {
@@ -62,10 +66,10 @@ class Siren {
   /// Maps each individual update case. This allows for very fine grained control
   /// over what should happen depending on what kind of update happens.
   Future<T?> mapPolicy<T>({
-    required VersionCallback<T> onXChanged,
-    required VersionCallback<T> onYChanged,
-    required VersionCallback<T> onZChanged,
-    required VersionCallback<T> onBugfixChanged,
+    VersionCallback<T>? onXChanged,
+    VersionCallback<T>? onYChanged,
+    VersionCallback<T>? onZChanged,
+    VersionCallback<T>? onBugfixChanged,
     String country = 'US',
   }) async {
     final oldV = await getCurrentVersion();
@@ -75,9 +79,11 @@ class Siren {
 
     Future<void> openStore() async => openAppStore(country: country);
 
-    if (oldV.x < newV.x) return onXChanged(openStore);
-    if (oldV.y < newV.y) return onYChanged(openStore);
-    if (oldV.z < newV.z) return onZChanged(openStore);
-    if (oldV.bugfix < newV.bugfix) return onBugfixChanged(openStore);
+    if (oldV.x < newV.x) return onXChanged?.call(openStore, oldV, newV);
+    if (oldV.y < newV.y) return onYChanged?.call(openStore, oldV, newV);
+    if (oldV.z < newV.z) return onZChanged?.call(openStore, oldV, newV);
+    if (oldV.bugfix < newV.bugfix) {
+      return onBugfixChanged?.call(openStore, oldV, newV);
+    }
   }
 }
