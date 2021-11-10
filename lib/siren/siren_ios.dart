@@ -47,9 +47,10 @@ class SirenIOS {
 
 extension on Response {
   /// Parser extension to convert version number
-  Version getVersion() {
-    final json = jsonDecode(body);
-    final version = json['results'][0]['version'];
+  Version? getVersion() {
+    final results = jsonDecode(body)['results'];
+    if (results.isEmtpy) return null;
+    final version = results[0]['version'];
     return Version.from(version);
   }
 
