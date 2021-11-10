@@ -1,6 +1,6 @@
 name: siren
 description: An easy way to notify your user of version updates on Android and iOS.
-version: 0.0.3
+version: 0.0.4+2
 homepage: https://github.com/nonvanilla-shop/siren.git
 
 environment:
@@ -14,7 +14,7 @@ dependencies:
   package_info: ^2.0.2
   url_launcher: ^6.0.12
   web_scraper: ^0.1.4
-
+  html: ^0.15.0
 
 dev_dependencies:
   flutter_test:
