@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:http/http.dart';
 import 'package:siren/siren/version.dart';
-import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 
 /// This class handles getting the newest android version!
@@ -15,7 +14,7 @@ class SirenAndroid {
     final url =
         Uri.parse('https://play.google.com/store/apps/details?id=$from&hl=en');
     final response = await client.get(url);
-    return parse(response.body).getVersion();
+    return response.body.getVersion();
   }
 
   /// Returns the store link for the Play Store.
@@ -28,14 +27,19 @@ class SirenAndroid {
   }
 }
 
-extension on Document {
+extension on String {
   /// Parser extension to convert version number
-  Version getVersion() {
-    final additionalInfoElements = getElementsByClassName('hAyfc');
-    final versionElement = additionalInfoElements.firstWhere(
-      (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
-    );
-    final storeVersion = versionElement.querySelector('.htlgb')!.text;
-    return Version.from(storeVersion);
+  Version? getVersion() {
+    try {
+      final doc = parse(this);
+      final additionalInfoElements = doc.getElementsByClassName('hAyfc');
+      final versionElement = additionalInfoElements.firstWhere(
+        (elm) => elm.querySelector('.BgcNfc')!.text == 'Current Version',
+      );
+      final storeVersion = versionElement.querySelector('.htlgb')!.text;
+      return Version.from(storeVersion);
+    } catch (_) {
+      return null;
+    }
   }
 }
